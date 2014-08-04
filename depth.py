@@ -71,9 +71,11 @@ if __name__ == "__main__":
   import argparse
   import sys
   parser = argparse.ArgumentParser()
-  parser.add_argument("segment_file", type=argparse.FileType("r"))
-  parser.add_argument("normal_pileup", type=argparse.FileType("r"))
-  parser.add_argument("tumor_pileup", type=argparse.FileType("r"))
+  parser.add_argument("segment_file",
+                      type=argparse.FileType("r"))
+  parser.add_argument("pileup_files", 
+                      type=argparse.FileType("r"),
+                      nargs="+")
   parser.add_argument("output", type=argparse.FileType("w"),
                       nargs="?",
                       default=sys.stdout)
@@ -81,8 +83,9 @@ if __name__ == "__main__":
 
   range_set = create_range_set(args.segment_file)
   
-  normal_depth_count = count_read_num(args.normal_pileup, range_set)
-  tumor_depth_count = count_read_num(args.tumor_pileup, range_set)
+  counts = []
+  for f in args.pileup_files:
+    counts.append(count_read_num(f, range_set))
   
   args.segment_file.seek(0)
   d = {}
@@ -97,6 +100,5 @@ if __name__ == "__main__":
   
   for key in sorted(d.keys()):
     for t in d[key]:
-      print >> args.output, "\t".join([key, str(t[0]), str(t[1]),
-                       str(normal_depth_count.get(key,{}).get(t,0)),
-                       str(tumor_depth_count.get(key,{}).get(t,0))])
+      print >> args.output, "\t".join([key, str(t[0]), str(t[1])] + 
+                       [ str(c.get(key,{}).get(t,0)) for c in counts])
