@@ -75,7 +75,7 @@ if __name__ == "__main__":
                       type=argparse.FileType("r"))
   parser.add_argument("pileup_files", 
                       type=argparse.FileType("r"),
-                      default=sys.stdin,
+                      default=[sys.stdin],
                       nargs="*")
   parser.add_argument("-o", "--output", type=argparse.FileType("w"),
                       default=sys.stdout)
